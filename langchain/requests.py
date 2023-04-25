@@ -107,7 +107,7 @@ class TextRequestsWrapper(BaseModel):
     The main purpose of this wrapper is to always return a text output.
     """
 
-    headers: Optional[Dict[str, str]] = None
+    defaults: Optional[dict] = None
     aiosession: Optional[aiohttp.ClientSession] = None
 
     class Config:
@@ -117,25 +117,54 @@ class TextRequestsWrapper(BaseModel):
         arbitrary_types_allowed = True
 
     @property
+    def headers(self):
+        return (
+            self.defaults["headers"]
+            if self.defaults and "headers" in self.defaults
+            else None
+        )
+
+    @property
     def requests(self) -> Requests:
         return Requests(headers=self.headers, aiosession=self.aiosession)
 
+    def _merge_kwargs(fn):
+        def fn_wrapper(self, url: str, **kwargs: Any) -> str:
+            merged_kwargs = None
+            default_kwargs = None
+            if self.defaults and "kwargs" in self.defaults:
+                default_kwargs = self.defaults["kwargs"]
+            if default_kwargs and kwargs:
+                merged_kwargs = {**default_kwargs, **kwargs}
+            elif default_kwargs:
+                merged_kwargs = default_kwargs
+            else:
+                merged_kwargs = kwargs
+            return fn(self, url, **merged_kwargs)
+
+        return fn_wrapper
+
+    @_merge_kwargs
     def get(self, url: str, **kwargs: Any) -> str:
         """GET the URL and return the text."""
         return self.requests.get(url, **kwargs).text
 
+    @_merge_kwargs
     def post(self, url: str, data: Dict[str, Any], **kwargs: Any) -> str:
         """POST to the URL and return the text."""
         return self.requests.post(url, data, **kwargs).text
 
+    @_merge_kwargs
     def patch(self, url: str, data: Dict[str, Any], **kwargs: Any) -> str:
         """PATCH the URL and return the text."""
         return self.requests.patch(url, data, **kwargs).text
 
+    @_merge_kwargs
     def put(self, url: str, data: Dict[str, Any], **kwargs: Any) -> str:
         """PUT the URL and return the text."""
         return self.requests.put(url, data, **kwargs).text
 
+    @_merge_kwargs
     def delete(self, url: str, **kwargs: Any) -> str:
         """DELETE the URL and return the text."""
         return self.requests.delete(url, **kwargs).text
