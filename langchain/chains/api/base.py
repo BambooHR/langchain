@@ -22,6 +22,7 @@ class APIChain(Chain):
     api_docs: str
     question_key: str = "question"  #: :meta private:
     output_key: str = "output"  #: :meta private:
+    api_request_output_parser: Any = None
 
     @property
     def input_keys(self) -> List[str]:
@@ -73,6 +74,8 @@ class APIChain(Chain):
         self.callback_manager.on_text(
             api_response, color="yellow", end="\n", verbose=self.verbose
         )
+        if self.api_request_output_parser:
+            api_response = self.api_request_output_parser(api_response)
         answer = self.api_answer_chain.predict(
             question=question,
             api_docs=self.api_docs,
@@ -109,6 +112,7 @@ class APIChain(Chain):
         requests_defaults: Optional[dict] = None,
         api_url_prompt: BasePromptTemplate = API_URL_PROMPT,
         api_response_prompt: BasePromptTemplate = API_RESPONSE_PROMPT,
+        api_request_output_parser: any = None,
         **kwargs: Any,
     ) -> APIChain:
         """Load chain from just an LLM and the api docs."""
@@ -120,6 +124,7 @@ class APIChain(Chain):
             api_answer_chain=get_answer_chain,
             requests_wrapper=requests_wrapper,
             api_docs=api_docs,
+            api_request_output_parser=api_request_output_parser,
             **kwargs,
         )
 
