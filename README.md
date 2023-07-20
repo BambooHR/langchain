@@ -11,7 +11,7 @@ $ ./bin/install.sh
 
 ### Uninstall
 1. Active the conda environment where you want to uninstall langchain
-2. Run the uninstalls cript
+2. Run the uninstalls script
 ```
 $ ./bin/uninstall.sh
 ```
