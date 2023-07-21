@@ -1,5 +1,21 @@
 # 🦜️🔗 LangChain
 
+## BambooHR Fork
+
+### Install
+1. Activate the conda environment where you want to install langchain
+2. Run the install script
+```
+$ ./bin/install.sh
+```
+
+### Uninstall
+1. Activate the conda environment where you want to uninstall langchain
+2. Run the uninstall script
+```
+$ ./bin/uninstall.sh
+```
+
 ⚡ Building applications with LLMs through composability ⚡
 
 [![Release Notes](https://img.shields.io/github/release/hwchase17/langchain)](https://github.com/hwchase17/langchain/releases)
